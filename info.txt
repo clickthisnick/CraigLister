@@ -1,0 +1,12 @@
+<Location><Location>
+<Title><Title>
+<Type><Type>
+<Category><Category>
+<Email><Email>
+<Street><Street>
+<City>Ames<City>
+<CrossStreet><CrossStreet>
+<State><State>
+<Postal><Postal>
+<Body><Body>
+<Price><Price>

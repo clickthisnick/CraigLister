@@ -3,7 +3,9 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 import time
+import datetime
 import os
+import shutil
 
 def post_type(driver,label):
     #for sale by dealer 
@@ -47,7 +49,7 @@ def add_images(driver,p):
     driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/button").click()
 
 def moveFolder(folder,posted_dir):
-    import shutil
+    
     now = time.strftime("%c")
     
     #>>>get the date like this 7/16/2014
@@ -98,6 +100,38 @@ posted_dir = os.path.join(posts_dir,"posted")
 # Make the posted folder
 makeFolder(posted_dir)
 
+# Get all the date folders of posted items
+date_folders = [child for child in os.listdir(posted_dir)]
+
+# Moving items that are 3 days or older back into the queue to get posted
+for x in date_folders:
+    date_split = x.split('-')
+    folder_date = datetime.date(int(date_split[2]) + 2000, int(date_split[0]), int(date_split[1]))
+    now = datetime.datetime.now()
+    days_passed = now - datetime.datetime.combine(folder_date, datetime.time())
+
+    # If more than 24 hours passed will look like
+    # 1 day, 13:37:47.356000
+    if "day" in str(days_passed):
+        days_split = str(days_passed).split('day')
+
+        # The amount of days that have passed
+        if int(days_split[0].strip()) >= 3:
+
+            # Repost the craigslist ads
+            # To do that we can just move the folders back into the main folder :D
+            listings_array = [child for child in os.listdir(os.path.join(posted_dir,x))]
+
+            date_folder_dir = os.path.join(posted_dir,x)
+            
+            for y in listings_array:
+                listing_dir = os.path.join(date_folder_dir,y)
+
+                # Move the listing folder to the posts directory
+                shutil.move(listing_dir,posts_dir)
+
+            os.rmdir(date_folder_dir)
+        
 folders = [child for child in os.listdir(posts_dir)]
 
 # Don't include the posted folder in our listings folder

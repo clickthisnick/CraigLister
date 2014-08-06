@@ -57,10 +57,8 @@ def moveFolder(folder,posted_dir):
     
     now = time.strftime("%c")
     
-    #>>>get the date like this 7/16/2014
-    today_dir = os.path.join(posted_dir,time.strftime("%x"))
-    today_dir = today_dir.replace("/","-")
-    print today_dir
+    # %x >>>get the date like this 7/16/2014
+    today_dir = os.path.join(posted_dir,time.strftime("%x").replace("/","-"))
     
     # Make todays date under the posted directory
     makeFolder(today_dir)

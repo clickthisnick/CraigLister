@@ -6,10 +6,15 @@ import time
 import datetime
 import os
 import shutil
+from inspect import getsourcefile
+from os.path import abspath
+
+file_path = abspath(getsourcefile(lambda _: None))
+file_dir = os.path.normpath(file_path + os.sep + os.pardir)
 
 def post_type(driver,label):
-    #for sale by dealer 
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input") 
+    #for sale by dealer
+    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
 
 def abide_by_guidelines(driver):
     return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div/form/button")
@@ -86,25 +91,105 @@ def parse_text_file(ft):
     body = parsing(f,"<Body>")
 
     # just get rid of everything that not unicode
-    body =  ''.join([i if ord(i) < 128 else '' for i in body])
+    body = ''.join([i if ord(i) < 128 else '' for i in body])
 
     # tabs will actually go to the next field in craiglist
-    body = "     ".join(body.split("\t"))
+    body = " ".join(body.split("\t"))
     
     price = parsing(f,"<Price>")
     return loc.lower(),title,types,cat,email,street,xstreet,state,postal,body,city,price
 
-posts_dir = os.path.abspath(os.path.join(os.getcwd(), "posts"))
+
+posts_dir = os.path.abspath(os.path.join(file_dir, "posts"))
 posted_dir = os.path.join(posts_dir,"posted")
 
 # Make the posted folder
 makeFolder(posted_dir)
+
+example = """
+<Location><Location>
+<Title><Title>
+<Type><Type>
+<Category><Category>
+<Email><Email>
+<Street><Street>
+<City>Ames<City>
+<CrossStreet><CrossStreet>
+<State><State>
+<Postal><Postal>
+<Body><Body>
+<Price><Price>
+
+// Categories
+	// Types
+
+//job offered
+//gig offered (I'm hiring for a short-term, small or odd job)
+//resume / job wanted
+//housing offered
+//housing wanted
+//for sale by owner
+	//antiques - by owner
+	//appliances - by owner
+	//arts & crafts - by owner
+	//atvs, utvs, snowmobiles - by owner
+	//auto parts - by owner
+	//baby & kid stuff - by owner (no illegal sales of recall items, e.g. drop-side cribs)
+	//barter
+	//bicycle parts & accessories - by owner
+	//bicycles - by owner
+	//boats - by owner
+	//books & magazines - by owner
+	//business/commercial - by owner
+	//cars & trucks - by owner
+	//cds / dvds / vhs - by owner (no pornography please)
+	//cell phones - by owner
+	//clothing & accessories - by owner
+	//collectibles - by owner
+	//computer parts & accessories - by owner
+	//computers - by owner
+	//electronics - by owner
+	//farm & garden - by owner (legal sales of agricultural livestock OK)
+	//free stuff (no "wanted" ads, pets, promotional giveaways, or intangible/digital items please)
+	//furniture - by owner
+	//garage & moving sales (no online or virtual sales here please)
+	//general for sale - by owner
+	//health and beauty - by owner
+	//heavy equipment - by owner
+	//household items - by owner
+	//jewelry - by owner
+	//materials - by owner
+	//motorcycle parts & accessories - by owner
+	//motorcycles/scooters - by owner
+	//musical instruments - by owner
+	//photo/video - by owner
+	//rvs - by owner
+	//sporting goods - by owner (no firearms, ammunition, pellet/BB guns, stun guns, etc)
+	//tickets - by owner (please do not sell tickets for more than face value)
+	//tools - by owner
+	//toys & games - by owner
+	//video gaming - by owner
+	//wanted - by owner
+//for sale by dealer
+//wanted by owner
+//wanted by dealer
+//service offered
+//personal / romance
+//community
+//event / class
+"""
+print os.path.join(file_dir,"exampleinfo.txt")
+
+with open(os.path.join(file_dir,"exampleinfo.txt"),"w") as f:
+	f.write(example)
+	f.close()
 
 # Get all the date folders of posted items
 date_folders = [child for child in os.listdir(posted_dir)]
 
 # Moving items that are 3 days or older back into the queue to get posted
 for x in date_folders:
+    print x
     date_split = x.split('-')
     folder_date = datetime.date(int(date_split[2]) + 2000, int(date_split[0]), int(date_split[1]))
     now = datetime.datetime.now()
@@ -154,7 +239,7 @@ for folder in folders:
     # Then use the other images
     # I could use zip and such but I don't have the function handy that works well
     sec_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] != "_") or (x[0].isdigit() == False)]
-    first_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] == "_") and (x[0].isdigit())] 
+    first_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] == "_") and (x[0].isdigit())]
 
     first_list.sort()
     sec_list.sort()
@@ -185,4 +270,3 @@ for folder in folders:
     add_images(driver,allpics)
 
     moveFolder(folder,posted_dir)
-                          

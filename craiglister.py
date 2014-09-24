@@ -8,101 +8,18 @@ import os
 import shutil
 from inspect import getsourcefile
 from os.path import abspath
+chromedriver = "C:\Python27\Lib\site-packages\selenium\webdriver\chrome\chromedriver\chromedriver"
+os.environ["webdriver.chrome.driver"] = chromedriver
+
+#--------------------------------------- Importing Stuff ----------------------
 
 file_path = abspath(getsourcefile(lambda _: None))
 file_dir = os.path.normpath(file_path + os.sep + os.pardir)
-
-def post_type(driver,label):
-    #for sale by dealer
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
-
-def abide_by_guidelines(driver):
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div/form/button")
-
-def post_category(driver,label):
-    #furniture - by dealer
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
-
-def create_post(driver,email,title,body,postal_code,price=""):
-    driver.find_element_by_id("FromEMail").send_keys(email)
-    driver.find_element_by_id("ConfirmEMail").send_keys(email)
-    driver.find_element_by_id("PostingTitle").send_keys(title)
-    driver.find_element_by_id("postal_code").send_keys(postal_code)
-    driver.find_element_by_id("PostingBody").send_keys(body)
-    driver.find_element_by_id("Ask").send_keys(price)
-    driver.find_element_by_xpath("//*[@id='postingForm']/button").click()
-
-def geo_location(driver,street="",cross_street="",city="",state="",postal=""):
-    time.sleep(3)
-    driver.find_element_by_id("xstreet0").send_keys(street)
-    driver.find_element_by_id("xstreet1").send_keys(cross_street)
-    driver.find_element_by_id("city").send_keys(city)
-    driver.find_element_by_id("region").send_keys(state)
-    time.sleep(1)
-    driver.find_element_by_id("search_button").click()
-    time.sleep(2)
-    #driver.find_element_by_id("postal_code").send_keys(postal) #Should already be there
-    driver.find_element_by_xpath("//*[@id='leafletForm']/button[1]").click()
-    
-def add_images(driver,p):
-    driver.find_element_by_id("classic").click()
-    for x in p:
-        driver.find_element_by_xpath(".//*[@id='uploader']/form/input[3]").send_keys(x)
-        time.sleep(5)
-
-    # Click done wtih images button
-    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/button").click()
-
-def moveFolder(folder,posted_dir):
-    
-    now = time.strftime("%c")
-    
-    # %x >>>get the date like this 7/16/2014
-    today_dir = os.path.join(posted_dir,time.strftime("%x").replace("/","-"))
-    
-    # Make todays date under the posted directory
-    makeFolder(today_dir)
-    
-    # Move the folder to the posted todays date directory
-    shutil.move(folder, today_dir)
-
-def makeFolder(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    
-def parsing(f,splits):
-    fsplit = f.split(splits)
-    return fsplit[1]
-
-def parse_text_file(ft):
-    f = ft.read()
-    loc = parsing(f,"<Location>")
-    title = parsing(f,"<Title>")
-    types = parsing(f,"<Type>")
-    cat = parsing(f,"<Category>")
-    email = parsing(f,"<Email>")
-    street = parsing(f,"<Street>")
-    city = parsing(f,"<City>")
-    xstreet = parsing(f,"<CrossStreet>")
-    state = parsing(f,"<State>")
-    postal = parsing(f,"<Postal>")
-    body = parsing(f,"<Body>")
-
-    # just get rid of everything that not unicode
-    body = ''.join([i if ord(i) < 128 else '' for i in body])
-
-    # tabs will actually go to the next field in craiglist
-    body = " ".join(body.split("\t"))
-    
-    price = parsing(f,"<Price>")
-    return loc.lower(),title,types,cat,email,street,xstreet,state,postal,body,city,price
-
-
 posts_dir = os.path.abspath(os.path.join(file_dir, "posts"))
 posted_dir = os.path.join(posts_dir,"posted")
 
-# Make the posted folder
-makeFolder(posted_dir)
+
+#-------------------------------------- Current Directory Stuff
 
 example = """
 <Location><Location>
@@ -176,11 +93,122 @@ example = """
 //community
 //event / class
 """
-print os.path.join(file_dir,"exampleinfo.txt")
 
+readme = """
+In the posts folder create a new folder and put in there
+the exampleinfo.txt with the info you want
+and then put in pictures in that folder.
+You can change the order by naming them with _1 or _2
+Also make sure there is info.txt in the folder
+"""
+
+# Make a file with the example format
 with open(os.path.join(file_dir,"exampleinfo.txt"),"w") as f:
 	f.write(example)
 	f.close()
+
+# Make a file with the example format
+with open(os.path.join(file_dir,"README.txt"),"w") as f:
+	f.write(readme)
+	f.close()
+	
+#---------------------------------- Set Up Readme and Example ----------------
+
+def makeFolder(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        
+# Make the posted folder
+makeFolder(posted_dir)
+
+#------------------------------- Set Up Necessary Directories ---------
+
+class post(object):
+    def __init__(self,f):
+        self.loc = parsing(f,"<Location>").lower()
+        self.title = parsing(f,"<Title>")
+        self.types = parsing(f,"<Type>")
+        self.cat = parsing(f,"<Category>")
+        self.email = parsing(f,"<Email>")
+        self.street = parsing(f,"<Street>")
+        self.city = parsing(f,"<City>")
+        self.xstreet = parsing(f,"<CrossStreet>")
+        self.state = parsing(f,"<State>")
+        self.postal = parsing(f,"<Postal>")
+        self.body = parsing(f,"<Body>")
+        # just get rid of everything that not unicode
+        self.body = ''.join([i if ord(i) < 128 else '' for i in self.body])
+        # tabs will actually go to the next field in craiglist
+        self.body = " ".join(self.body.split("\t"))    
+        self.price = parsing(f,"<Price>")
+
+
+#------------------------------ Post Object ----------------------------
+
+def abide_by_guidelines(driver):
+    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div/form/button")
+
+def post_type(driver,label):
+    #for sale by dealer
+    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
+
+
+def post_category(driver,label):
+    #furniture - by dealer
+    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
+
+def create_post(driver,p):
+    driver.find_element_by_id("FromEMail").send_keys(p.email)
+    driver.find_element_by_id("ConfirmEMail").send_keys(p.email)
+    driver.find_element_by_id("PostingTitle").send_keys(p.title)
+    driver.find_element_by_id("postal_code").send_keys(p.postal)
+    driver.find_element_by_id("PostingBody").send_keys(p.body)
+    driver.find_element_by_id("Ask").send_keys(p.price)
+    driver.find_element_by_xpath("//*[@id='postingForm']/button").click()
+
+def geo_location(driver,p):
+    time.sleep(3)
+    driver.find_element_by_id("xstreet0").send_keys(p.street)
+    driver.find_element_by_id("xstreet1").send_keys(p.xstreet)
+    driver.find_element_by_id("city").send_keys(p.city)
+    driver.find_element_by_id("region").send_keys(p.state)
+    time.sleep(1)
+    driver.find_element_by_id("search_button").click()
+    time.sleep(2)
+    #driver.find_element_by_id("postal_code").send_keys(postal) #Should already be there
+    driver.find_element_by_xpath("//*[@id='leafletForm']/button[1]").click()
+    
+def add_images(driver,p):
+    driver.find_element_by_id("classic").click()
+    for x in p:
+        driver.find_element_by_xpath(".//*[@id='uploader']/form/input[3]").send_keys(x)
+        time.sleep(5)
+
+    # Click done wtih images button
+    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/button").click()
+
+
+# --------------------------- Craigslist Posting Actions ---------------
+
+def moveFolder(folder,posted_dir):
+    
+    now = time.strftime("%c")
+    
+    # %x >>>get the date like this 7/16/2014
+    today_dir = os.path.join(posted_dir,time.strftime("%x").replace("/","-"))
+    
+    # Make todays date under the posted directory
+    makeFolder(today_dir)
+    
+    # Move the folder to the posted todays date directory
+    shutil.move(folder, today_dir)
+
+
+    
+def parsing(f,splits):
+    fsplit = f.split(splits)
+    return fsplit[1]
+
 
 # Get all the date folders of posted items
 date_folders = [child for child in os.listdir(posted_dir)]
@@ -214,7 +242,11 @@ for x in date_folders:
                 shutil.move(listing_dir,posts_dir)
 
             os.rmdir(date_folder_dir)
-        
+
+#-------------------------- Dealing with posted listings --------------------
+
+
+# Get all the folders we are needing to post  
 folders = [child for child in os.listdir(posts_dir)]
 
 # Don't include the posted folder in our listings folder
@@ -250,21 +282,25 @@ for folder in folders:
     with open(os.path.abspath(os.path.join(folder, 'info.txt')), 'r') as info:
 
         # Parses the info file
-        loc,title,types,cat,email,street,xstreet,state,postal,body,city,price = parse_text_file(info)
-    
+        p = post(info.read())
+
     # Create a new instance of the Firefox driver
-    driver = webdriver.Firefox()
+    driver = webdriver.Chrome(chromedriver)
+
 
     # Go to craigslist postpage
-    driver.get("https://post.craigslist.org/c/" + loc + "?lang=en")
-    post_type(driver,types).click()
-    post_category(driver,cat).click()
+    driver.get("https://post.craigslist.org/c/" + p.loc + "?lang=en")
+
+    post_type(driver,p.types).click()
+    post_category(driver,p.cat).click()
     try:
         abide_by_guidelines(driver).click() # Don't always have to do this for some reason
     except:
         pass
-    create_post(driver,email=email,title=title,body=body,postal_code=postal,price=price)
-    geo_location(driver,street=street,cross_street=xstreet,city=city,state=state,postal=postal)
+    create_post(driver,p)
+    geo_location(driver,p)
     add_images(driver,allpics)
 
     moveFolder(folder,posted_dir)
+    
+#------------------ Dealing with posts that need to be posted ------------------  

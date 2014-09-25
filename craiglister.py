@@ -8,7 +8,8 @@ import os
 import shutil
 from inspect import getsourcefile
 from os.path import abspath
-chromedriver = "C:\Python27\Lib\site-packages\selenium\webdriver\chrome\chromedriver\chromedriver"
+from gmail import Gmail
+chromedriver = "/Users/nicholassmith/Desktop/Craigslister/chromedriver"
 os.environ["webdriver.chrome.driver"] = chromedriver
 
 #--------------------------------------- Importing Stuff ----------------------
@@ -145,6 +146,7 @@ class post(object):
 
 #------------------------------ Post Object ----------------------------
 
+
 def abide_by_guidelines(driver):
     return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div/form/button")
 
@@ -187,6 +189,12 @@ def add_images(driver,p):
     # Click done wtih images button
     driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/button").click()
 
+def accept_terms(driver):
+    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/section[1]//button[contains(.,'ACCEPT the terms of use')]").click()
+
+def publish(driver):
+    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div[1]/form/button[contains(.,'publish')]").click()
+    
 
 # --------------------------- Craigslist Posting Actions ---------------
 
@@ -211,7 +219,7 @@ def parsing(f,splits):
 
 
 # Get all the date folders of posted items
-date_folders = [child for child in os.listdir(posted_dir)]
+date_folders = [child for child in os.listdir(posted_dir) if child[0] != "."]
 
 # Moving items that are 3 days or older back into the queue to get posted
 for x in date_folders:
@@ -247,7 +255,7 @@ for x in date_folders:
 
 
 # Get all the folders we are needing to post  
-folders = [child for child in os.listdir(posts_dir)]
+folders = [child for child in os.listdir(posts_dir) if child[0] != "."]
 
 # Don't include the posted folder in our listings folder
 folders.pop(folders.index("posted"))
@@ -300,7 +308,25 @@ for folder in folders:
     create_post(driver,p)
     geo_location(driver,p)
     add_images(driver,allpics)
-
-    moveFolder(folder,posted_dir)
     
-#------------------ Dealing with posts that need to be posted ------------------  
+    moveFolder(folder,posted_dir)    
+    publish(driver)
+
+    g = Gmail()
+    g.login(username, password)
+
+    emails = g.inbox().mail(sender="robot@craigslist.org")
+    for email in emails:
+        email.fetch()
+        eMessage = email.body
+        msg = eMessage.split("https")
+        msg = msg[1].split("\r\n")
+        msg = msg[0]
+        email.read()
+        email.archive()
+        driver.get("https" + msg)
+        accept_terms(driver)
+    g.logout()
+
+
+#------------------ Dealing with posts that need to be posted ------------------

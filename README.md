@@ -21,5 +21,5 @@ Usage
 
 When you run the program for the first time it will generate a readme file and an info file.
 
-You will need to create a folder in the same directory as this script for the item you want to list, copy the exampleinfo.txt to your new folder, rename to info.txt and fill out as needed. Also any images you want in the listing must be in this folder and will their position can be determined by putting _1, _2, _3 at the end of the filenam.
+You will need to create a folder in the same directory as this script for the item you want to list, copy the exampleinfo.txt to your new folder, rename to info.txt and fill out as needed. Also any images you want in the listing must be in this folder and will their position can be determined by putting _1, _2, _3 at the end of the filename.
 

@@ -1,7 +1,7 @@
 CraigLister
 ===========
 
-This program will repeatedly post your craigslist ads every 48 hours and auto approve them.
+This program will repeatedly post your craigslist ads every 72 hours and auto approve them.
 
 It is useful when you want something to sell put you don't want to repeatedly post them.
 
@@ -36,4 +36,5 @@ Usage
 | 11 | You can change the order of the images by naming appending _1 _2 _3 etc. |
 | 12 | Run craigslister.py and it will post your Guitar listing |
 
+This script works by parsing the info.txt file, filling out the craigslist post with that information, uploading the pictures and then submitting the post. Craigslist will then email you an approval link, the gmail library will parse that link and selenium will direct you to that link and click accept. Then the folder you created for that post will get moved to a posted folder within a date folder. Then when it has been 72 hours or greater the posts within that date folder will be moved back to the posts pool and will get posted again.
 

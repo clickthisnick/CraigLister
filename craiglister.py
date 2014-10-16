@@ -10,6 +10,8 @@ from inspect import getsourcefile
 from os.path import abspath
 from gmail import Gmail
 
+gmailUser = ""
+gmailPass = ""
 
 #--------------------------------------- Importing Stuff ----------------------
 
@@ -29,7 +31,7 @@ example = """
 <Category><Category>
 <Email><Email>
 <Street><Street>
-<City>Ames<City>
+<City><City>
 <CrossStreet><CrossStreet>
 <State><State>
 <Postal><Postal>
@@ -96,11 +98,12 @@ example = """
 """
 
 readme = """
-In the posts folder create a new folder and put in there
-the exampleinfo.txt with the info you want
-and then put in pictures in that folder.
-You can change the order by naming them with _1 or _2
-Also make sure there is info.txt in the folder
+In the posts folder create a new folder that describes the item to post
+For example make a folder Guitar
+Then copy exampleinfo.txt into the Guitar folder and rename info.txt
+File out the info.txt with the correct craigslist information
+Put any pictures you want in the listing in the Guitar folder
+You can change the order of the images by naming appending _1 _2 _3 etc.
 """
 
 # Make a file with the example format
@@ -319,7 +322,7 @@ for folder in folders:
     publish(driver)
 
     g = Gmail()
-    g.login(username, password)
+    g.login(gmailUser, gmailPass)
 
     print "Checking email"
     emails = g.inbox().mail(sender="robot@craigslist.org")

@@ -27,7 +27,7 @@ Usage
 | 2 | Download the chromedriver and put into the craigslister directory |
 | 3 | Install and import the gmail library or download files from gmail link and put in craiglister directory |
 | 4 | Change the gmail username/pass in the craiglister.py file
-| 5 | Run the craigslister.py file, it will read a readme and exampleinfo file |
+| 5 | Run the craigslister.py file, it will create a readme, exampleinfo file, and a posts directory |
 | 6 | In the posts folder create a new folder that describes the item to post |
 | 7 | For example make a folder Guitar |
 | 8 | Then copy exampleinfo.txt into the Guitar folder and rename info.txt |

@@ -9,8 +9,7 @@ import shutil
 from inspect import getsourcefile
 from os.path import abspath
 from gmail import Gmail
-chromedriver = "/Users/nicholassmith/Desktop/Craigslister/chromedriver"
-os.environ["webdriver.chrome.driver"] = chromedriver
+
 
 #--------------------------------------- Importing Stuff ----------------------
 
@@ -18,7 +17,8 @@ file_path = abspath(getsourcefile(lambda _: None))
 file_dir = os.path.normpath(file_path + os.sep + os.pardir)
 posts_dir = os.path.abspath(os.path.join(file_dir, "posts"))
 posted_dir = os.path.join(posts_dir,"posted")
-
+chromedriver = file_dir + "/chromedriver"
+os.environ["webdriver.chrome.driver"] = chromedriver
 
 #-------------------------------------- Current Directory Stuff
 
@@ -239,7 +239,7 @@ for x in date_folders:
 
             # Repost the craigslist ads
             # To do that we can just move the folders back into the main folder :D
-            listings_array = [child for child in os.listdir(os.path.join(posted_dir,x))]
+            listings_array = [child for child in os.listdir(os.path.join(posted_dir,x)) if child[0] != "."]
 
             date_folder_dir = os.path.join(posted_dir,x)
             
@@ -248,8 +248,9 @@ for x in date_folders:
 
                 # Move the listing folder to the posts directory
                 shutil.move(listing_dir,posts_dir)
+                
 
-            os.rmdir(date_folder_dir)
+            shutil.rmtree(date_folder_dir)
 
 #-------------------------- Dealing with posted listings --------------------
 
@@ -266,18 +267,21 @@ for folder in folders:
 
     # The absolue path to the folder we are using
     folder = os.path.abspath(os.path.join(posts_dir, folder))
-                          
-    # Gets all the files in the folder
-    onlyfiles = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder,f)) ]
 
+    print folder
+    
+    # Gets all the files in the folder
+    onlyfiles = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder,f)) and f[0] != '.' ]
+
+    print onlyfiles
     # Deletes the text file from our image array
     onlyfiles.pop(onlyfiles.index("info.txt"))
 
     # Basically I want to sort things with numbered prefixes and use them first
     # Then use the other images
     # I could use zip and such but I don't have the function handy that works well
-    sec_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] != "_") or (x[0].isdigit() == False)]
-    first_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] == "_") and (x[0].isdigit())]
+    sec_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] != "_") or (x[0].isdigit() == False) and x[0] != '.']
+    first_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] == "_") and (x[0].isdigit()) and x[0] != '.']
 
     first_list.sort()
     sec_list.sort()
@@ -292,29 +296,32 @@ for folder in folders:
         # Parses the info file
         p = post(info.read())
 
+    print "Opening browser"
     # Create a new instance of the Firefox driver
     driver = webdriver.Chrome(chromedriver)
-
 
     # Go to craigslist postpage
     driver.get("https://post.craigslist.org/c/" + p.loc + "?lang=en")
 
+    print "Opened"
     post_type(driver,p.types).click()
     post_category(driver,p.cat).click()
+    print "Chose category"
     try:
         abide_by_guidelines(driver).click() # Don't always have to do this for some reason
     except:
         pass
     create_post(driver,p)
+    
     geo_location(driver,p)
     add_images(driver,allpics)
-    
-    moveFolder(folder,posted_dir)    
+       
     publish(driver)
 
     g = Gmail()
     g.login(username, password)
 
+    print "Checking email"
     emails = g.inbox().mail(sender="robot@craigslist.org")
     for email in emails:
         email.fetch()
@@ -326,7 +333,10 @@ for folder in folders:
         email.archive()
         driver.get("https" + msg)
         accept_terms(driver)
+        moveFolder(folder,posted_dir)
+        break
     g.logout()
 
+    time.sleep(120)
 
 #------------------ Dealing with posts that need to be posted ------------------

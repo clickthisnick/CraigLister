@@ -5,6 +5,8 @@ This program will repeatedly post your craigslist ads every 48 hours and auto ap
 
 It is useful when you want something to sell put you don't want to repeatedly post them.
 
+It is built using selenium, it automates the browser actions and uses a gmail library to approve listings.
+
 Dependencies
 ------------
 
@@ -19,7 +21,19 @@ http://chromedriver.storage.googleapis.com/index.html
 Usage
 -----
 
-When you run the program for the first time it will generate a readme file and an info file.
+| Steps | Action |
+--------|--------|
+| 1 | Make a new directory and put craigslister.py in it |
+| 2 | Download the chromedriver and put into the craigslister directory |
+| 3 | Install and import the gmail library or download files from gmail link and put in craiglister directory |
+| 4 | Change the gmail username/pass in the craiglister.py file
+| 5 | Run the craigslister.py file, it will read a readme and exampleinfo file |
+| 6 | In the posts folder create a new folder that describes the item to post |
+| 7 | For example make a folder Guitar |
+| 8 | Then copy exampleinfo.txt into the Guitar folder and rename info.txt |
+| 9 | File out the info.txt with the correct craigslist information |
+| 10 | Put any pictures you want in the listing in the Guitar folder |
+| 11 | You can change the order of the images by naming appending _1 _2 _3 etc. |
+| 12 | Run craigslister.py and it will post your Guitar listing |
 
-You will need to create a folder in the same directory as this script for the item you want to list, copy the exampleinfo.txt to your new folder, rename to info.txt and fill out as needed. Also any images you want in the listing must be in this folder and will their position can be determined by putting _1, _2, _3 at the end of the filename.
 

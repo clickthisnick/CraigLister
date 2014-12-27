@@ -357,7 +357,7 @@ for folder in folders:
             driver.get("https" + msg)
             accept_terms(driver)
             moveFolder(folder,posted_dir)
-            email.delete()
+            email.archive()
             break
     g.logout()
     print "Done Checking Emails"

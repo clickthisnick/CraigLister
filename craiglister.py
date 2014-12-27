@@ -317,29 +317,37 @@ for folder in folders:
     create_post(driver,p)
     
     geo_location(driver,p)
+    print "Adding Images"
     add_images(driver,allpics)
-       
+    
+    print "Publishing Listing"
     publish(driver)
-
+    
     g = Gmail()
     g.login(gmailUser, gmailPass)
 
+    today = date.today()
+    year = today.year
+    month = today.month
+    day = today.day
+    time.sleep(120)
     print "Checking email"
-    emails = g.inbox().mail(sender="robot@craigslist.org")
+    emails = g.inbox().mail(sender="robot@craigslist.org",unread=True,after=datetime.date(year, month, day-1))
     for email in emails:
         email.fetch()
-        eMessage = email.body
-        msg = eMessage.split("https")
-        msg = msg[1].split("\r\n")
-        msg = msg[0]
         email.read()
-        email.archive()
-        driver.get("https" + msg)
-        accept_terms(driver)
-        moveFolder(folder,posted_dir)
-        break
+        if p.title[0:15] in email.subject:
+            eMessage = email.body
+            msg = eMessage.split("https")
+            msg = msg[1].split("\r\n")
+            msg = msg[0]
+            driver.get("https" + msg)
+            accept_terms(driver)
+            moveFolder(folder,posted_dir)
+            email.delete()
+            break
     g.logout()
-
+    print "Done Checking Emails"
     time.sleep(120)
 
 #------------------ Dealing with posts that need to be posted ------------------

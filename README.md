@@ -18,6 +18,11 @@ Also you need chromedriver as found here:
 
 http://chromedriver.storage.googleapis.com/index.html
 
+Pillow
+
+Python imaging library. To install use "pip install Pillow".
+If you have an error you may need to "pip uninstall PIL" and reistall Pillow as well.
+
 Usage
 -----
 

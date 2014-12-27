@@ -31,7 +31,7 @@ Usage
 | 6 | In the posts folder create a new folder that describes the item to post |
 | 7 | For example make a folder Guitar |
 | 8 | Then copy exampleinfo.txt into the Guitar folder and rename info.txt |
-| 9 | File out the info.txt with the correct craigslist information |
+| 9 | Fill out the info.txt with the correct craigslist information |
 | 10 | Put any pictures you want in the listing in the Guitar folder |
 | 11 | You can change the order of the images by naming appending _1 _2 _3 etc. |
 | 12 | Run craigslister.py and it will post your Guitar listing |

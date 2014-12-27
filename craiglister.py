@@ -9,6 +9,8 @@ import shutil
 from inspect import getsourcefile
 from os.path import abspath
 from gmail import Gmail
+from datetime import date
+from PIL import Image
 
 gmailUser = ""
 gmailPass = ""
@@ -182,10 +184,23 @@ def geo_location(driver,p):
     time.sleep(2)
     #driver.find_element_by_id("postal_code").send_keys(postal) #Should already be there
     driver.find_element_by_xpath("//*[@id='leafletForm']/button[1]").click()
-    
+
+def removeImgData(path):
+    filename, ext = os.path.splitext(path)
+    image = Image.open(filename+ext)
+    print "Striping Images of Data"
+    # Strip the exif data
+    data = list(image.getdata())
+    imageNoExif = Image.new(image.mode, image.size)
+    imageNoExif.putdata(data)
+    imageNoExif.save(filename + "copy" + ext)
+    os.remove(filename + ext)
+    os.rename(filename + "copy" + ext,filename+ext)
+
 def add_images(driver,p):
     driver.find_element_by_id("classic").click()
     for x in p:
+        removeImgData(x)
         driver.find_element_by_xpath(".//*[@id='uploader']/form/input[3]").send_keys(x)
         time.sleep(5)
 
@@ -317,15 +332,13 @@ for folder in folders:
     create_post(driver,p)
     
     geo_location(driver,p)
-    print "Adding Images"
     add_images(driver,allpics)
-    
-    print "Publishing Listing"
+    print "Adding Images"
     publish(driver)
-    
+    print "Publishing Listing"
     g = Gmail()
-    g.login(gmailUser, gmailPass)
-
+    g.login(gmailUser,gmailPass)
+    
     today = date.today()
     year = today.year
     month = today.month
@@ -348,6 +361,8 @@ for folder in folders:
             break
     g.logout()
     print "Done Checking Emails"
+    driver.close()
     time.sleep(120)
+    
 
 #------------------ Dealing with posts that need to be posted ------------------

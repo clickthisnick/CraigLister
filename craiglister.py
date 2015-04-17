@@ -19,8 +19,8 @@ gmailPass = ""
 
 file_path = abspath(getsourcefile(lambda _: None))
 file_dir = os.path.normpath(file_path + os.sep + os.pardir)
-posts_dir = os.path.abspath(os.path.join(file_dir, "posts"))
-posted_dir = os.path.join(posts_dir,"posted")
+listingsFolderDirectory = os.path.abspath(os.path.join(file_dir, "listings"))
+listedFolderDirectory = os.path.join(listingsFolderDirectory,"listed")
 chromedriver = file_dir + "/chromedriver"
 os.environ["webdriver.chrome.driver"] = chromedriver
 
@@ -117,24 +117,24 @@ with open(os.path.join(file_dir,"exampleinfo.txt"),"w") as f:
 with open(os.path.join(file_dir,"README.txt"),"w") as f:
 	f.write(readme)
 	f.close()
-	
+
 #---------------------------------- Set Up Readme and Example ----------------
 
 def makeFolder(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
-        
-# Make the posted folder
-makeFolder(posted_dir)
+
+# Make the listed folder
+makeFolder(listingsFolderDirectory)
 
 #------------------------------- Set Up Necessary Directories ---------
 
-class post(object):
+class listingInfoParse(object):
     def __init__(self,f):
         self.loc = parsing(f,"<Location>").lower()
         self.title = parsing(f,"<Title>")
-        self.types = parsing(f,"<Type>")
-        self.cat = parsing(f,"<Category>")
+        self.type = parsing(f,"<Type>")
+        self.category = parsing(f,"<Category>")
         self.email = parsing(f,"<Email>")
         self.street = parsing(f,"<Street>")
         self.city = parsing(f,"<City>")
@@ -145,224 +145,207 @@ class post(object):
         # just get rid of everything that not unicode
         self.body = ''.join([i if ord(i) < 128 else '' for i in self.body])
         # tabs will actually go to the next field in craiglist
-        self.body = " ".join(self.body.split("\t"))    
+        self.body = " ".join(self.body.split("\t"))
         self.price = parsing(f,"<Price>")
 
 
-#------------------------------ Post Object ----------------------------
+#------------------------------  Driver Navigation -----------------
 
+def clickDoneOnImageUploading(listing):
+	listing.driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/button").click()
 
-def abide_by_guidelines(driver):
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div/form/button")
+# Don't always have to do this
+def clickAbideByGuidelines(listing):
+    try:
+        listing.driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div/form/button").click()
+    except:
+        pass
 
-def post_type(driver,label):
-    #for sale by dealer
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
+def clickClassImageUploader(listing):
+	listing.driver.find_element_by_id("classic").click()
 
+def clickListingType(listing):
+    listing.driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + listing.type + "')]/input").click()
 
-def post_category(driver,label):
-    #furniture - by dealer
-    return driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + label + "')]/input")
+def clickListingCategory(listing):
+    listing.driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/blockquote//label[contains(.,'" + listing.category + "')]/input").click()
 
-def create_post(driver,p):
-    driver.find_element_by_id("FromEMail").send_keys(p.email)
-    driver.find_element_by_id("ConfirmEMail").send_keys(p.email)
-    driver.find_element_by_id("PostingTitle").send_keys(p.title)
-    driver.find_element_by_id("postal_code").send_keys(p.postal)
-    driver.find_element_by_id("PostingBody").send_keys(p.body)
-    driver.find_element_by_id("Ask").send_keys(p.price)
-    driver.find_element_by_xpath("//*[@id='postingForm']/button").click()
+def uploadImagePath(listing,image):
+	listing.driver.find_element_by_xpath(".//*[@id='uploader']/form/input[3]").send_keys(image)
 
-def geo_location(driver,p):
+def fillOutListing(listing):
+    listing.driver.find_element_by_id("FromEMail").send_keys(listing.email)
+    listing.driver.find_element_by_id("ConfirmEMail").send_keys(listing.email)
+    listing.driver.find_element_by_id("PostingTitle").send_keys(listing.title)
+    listing.driver.find_element_by_id("postal_code").send_keys(listing.postal)
+    listing.driver.find_element_by_id("PostingBody").send_keys(listing.body)
+    listing.driver.find_element_by_id("Ask").send_keys(listing.price)
+    listing.driver.find_element_by_xpath("//*[@id='postingForm']/button").click()
+
+def fillOutGeolocation(listing):
     time.sleep(3)
-    driver.find_element_by_id("xstreet0").send_keys(p.street)
-    driver.find_element_by_id("xstreet1").send_keys(p.xstreet)
-    driver.find_element_by_id("city").send_keys(p.city)
-    driver.find_element_by_id("region").send_keys(p.state)
+    listing.driver.find_element_by_id("xstreet0").send_keys(listing.street)
+    listing.driver.find_element_by_id("xstreet1").send_keys(listing.xstreet)
+    listing.driver.find_element_by_id("city").send_keys(listing.city)
+    listing.driver.find_element_by_id("region").send_keys(listing.state)
     time.sleep(1)
-    driver.find_element_by_id("search_button").click()
+    listing.driver.find_element_by_id("search_button").click()
     time.sleep(2)
-    #driver.find_element_by_id("postal_code").send_keys(postal) #Should already be there
-    driver.find_element_by_xpath("//*[@id='leafletForm']/button[1]").click()
+    #listing.driver.find_element_by_id("postal_code").send_keys(postal) #Should already be there
+    listing.driver.find_element_by_xpath("//*[@id='leafletForm']/button[1]").click()
 
-def removeImgData(path):
-    filename, ext = os.path.splitext(path)
-    image = Image.open(filename+ext)
-    print "Striping Images of Data"
-    # Strip the exif data
+def removeImgExifData(path):
+    filename, extension = os.path.splitext(path)
+    fullFilename = filename+extension
+    image = Image.open(fullFilename)
     data = list(image.getdata())
     imageNoExif = Image.new(image.mode, image.size)
     imageNoExif.putdata(data)
-    imageNoExif.save(filename + "copy" + ext)
-    os.remove(filename + ext)
-    os.rename(filename + "copy" + ext,filename+ext)
+    imageNoExif.save(filename + "copy" + extension)
+    os.remove(filename + extension)
+    os.rename(filename + "copy" + extension,fullFilename)
 
-def add_images(driver,p):
-    driver.find_element_by_id("classic").click()
-    for x in p:
-        removeImgData(x)
-        driver.find_element_by_xpath(".//*[@id='uploader']/form/input[3]").send_keys(x)
+def uploadListingImages(listing):
+    clickClassImageUploader(listing)
+    for image in listing.images:
+        removeImgExifData(image)
+        uploadImagePath(listing,image)
         time.sleep(5)
+    clickDoneOnImageUploading(listing)
 
-    # Click done wtih images button
-    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/form/button").click()
+def clickAcceptTerms(listing):
+    listing.driver.find_element_by_xpath("//*[@id='pagecontainer']/section/section[1]//button[contains(.,'ACCEPT the terms of use')]").click()
 
-def accept_terms(driver):
-    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/section[1]//button[contains(.,'ACCEPT the terms of use')]").click()
+def clickPublishListing(listing):
+	listing.driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div[1]/form/button[contains(.,'publish')]").click()
 
-def publish(driver):
-    driver.find_element_by_xpath("//*[@id='pagecontainer']/section/div[1]/form/button[contains(.,'publish')]").click()
-    
+def postListing(listing):
+    clickListingType(listing)
+    clickListingCategory(listing)
+    clickAbideByGuidelines(listing)
+    fillOutListing(listing)
+    fillOutGeolocation(listing)
+    uploadListingImages(listing)
+    clickPublishListing(listing)
+
+# --------------------------- Emails ---------------------
+
+def getFirstCraigslistEmailUrl(listing,emails):
+    for email in emails:
+        email.fetch()
+        email.read()
+        if listing.title[0:15] in email.subject:
+            emailMessage = email.body
+            email.archive()
+            acceptTermsLink = emailMessage.split("https")
+            acceptTermsLink = acceptTermsLink[1].split("\r\n")
+            return acceptTermsLink[0]
+
+def acceptTermsAndConditions(listing,termsUrl):
+    listing.driver.get("https" + termsUrl)
+    clickAcceptTerms(listing)
+
+def acceptEmailTerms(listing):
+    gmail = Gmail()
+    gmail.login(gmailUser,gmailPass)
+
+    today = date.today()
+    year = today.year
+    month = today.month
+    day = today.day
+
+    time.sleep(120)
+    print "Checking email"
+    emails = gmail.inbox().mail(sender="robot@craigslist.org",unread=True,after=datetime.date(year, month, day-1))
+    termsUrl = getFirstCraigslistEmailUrl(listing,emails)
+    acceptTermsAndConditions(listing,termsUrl)
+
+    gmail.logout()
+    print "Done Checking Email"
+
 
 # --------------------------- Craigslist Posting Actions ---------------
 
-def moveFolder(folder,posted_dir):
-    
+def moveFolder(folder,listedFolderDirectory):
+
     now = time.strftime("%c")
-    
+
     # %x >>>get the date like this 7/16/2014
-    today_dir = os.path.join(posted_dir,time.strftime("%x").replace("/","-"))
-    
-    # Make todays date under the posted directory
+    today_dir = os.path.join(listedFolderDirectory,time.strftime("%x").replace("/","-"))
+
+    # Make todays date under the listed directory
     makeFolder(today_dir)
-    
-    # Move the folder to the posted todays date directory
+
+    # Move the folder to the listed todays date directory
     shutil.move(folder, today_dir)
 
-
-    
 def parsing(f,splits):
     fsplit = f.split(splits)
     return fsplit[1]
 
 
-# Get all the date folders of posted items
-date_folders = [child for child in os.listdir(posted_dir) if child[0] != "."]
+# If more than 24 hours passed will look like
+# 1 day, 13:37:47.356000
+def hasItBeenXDaysSinceFolderListed(folder,x):
+    dateSplit = folder.split('-')
+    folderDate = datetime.date(int(dateSplit[2]) + 2000, int(dateSplit[0]), int(dateSplit[1]))
+    currentDatetime = datetime.datetime.now()
+    folderTimePassed = currentDatetime - datetime.datetime.combine(folderDate, datetime.time())
+    if "day" not in str(folderTimePassed):
+        return False
+    daysPassed = str(folderTimePassed).split('day')[0]
+    if int(daysPassed.strip()) >= x:
+        return True
+    return False
 
-# Moving items that are 3 days or older back into the queue to get posted
-for x in date_folders:
-    print x
-    date_split = x.split('-')
-    folder_date = datetime.date(int(date_split[2]) + 2000, int(date_split[0]), int(date_split[1]))
-    now = datetime.datetime.now()
-    days_passed = now - datetime.datetime.combine(folder_date, datetime.time())
+def getOrderedListingImages(listingFolder):
+    print 'listingFolder',listingFolder
+    listingImages = [f for f in os.listdir(listingFolder) if os.path.isfile(os.path.join(listingFolder,f)) and f[0] != '.'  and f != 'info.txt' ]
+    print 'listingImages',listingImages
+    secondList = [os.path.abspath(os.path.join(listingFolder, x)) for x in listingImages if (x[1] != "_") or (x[0].isdigit() == False) and x[0] != '.']
+    firstList = [os.path.abspath(os.path.join(listingFolder, x)) for x in listingImages if (x[1] == "_") and (x[0].isdigit()) and x[0] != '.']
 
-    # If more than 24 hours passed will look like
-    # 1 day, 13:37:47.356000
-    if "day" in str(days_passed):
-        days_split = str(days_passed).split('day')
+    firstList.sort()
+    secondList.sort()
 
-        # The amount of days that have passed
-        if int(days_split[0].strip()) >= 3:
+    orderedListingImages = []
+    for x in firstList:orderedListingImages.append(x)
+    for x in secondList:orderedListingImages.append(x)
+    return orderedListingImages
 
-            # Repost the craigslist ads
-            # To do that we can just move the folders back into the main folder :D
-            listings_array = [child for child in os.listdir(os.path.join(posted_dir,x)) if child[0] != "."]
+# Get all the date folders of listed items
+listedItemsFolders = [folder for folder in os.listdir(listedFolderDirectory) if folder[0] != "."]
 
-            date_folder_dir = os.path.join(posted_dir,x)
-            
-            for y in listings_array:
-                listing_dir = os.path.join(date_folder_dir,y)
+# Moving items that are 3 days or older back into the queue to get listed again
+for dayListedFolder in listedItemsFolders:
 
-                # Move the listing folder to the posts directory
-                shutil.move(listing_dir,posts_dir)
-                
+    if (hasItBeenXDaysSinceFolderListed(dayListedFolder,3) == False):
+        continue
 
-            shutil.rmtree(date_folder_dir)
+    listedFolders = [listedFolders for listedFolders in os.listdir(os.path.join(listedFolderDirectory,dayListedFolder)) if listedFolders[0] != "."]
+    dayListedFolderDirectory = os.path.join(listedFolderDirectory,dayListedFolder)
 
-#-------------------------- Dealing with posted listings --------------------
+    for listedFolder in listedFolders:
+        theListedFolderDirectory = os.path.join(dayListedFolderDirectory,listedFolder)
+        shutil.move(theListedFolderDirectory,listingsFolderDirectory)
+    shutil.rmtree(dayListedFolderDirectory)
 
 
-# Get all the folders we are needing to post  
-folders = [child for child in os.listdir(posts_dir) if child[0] != "."]
+# List Items
+listingFolders = [listing for listing in os.listdir(listingsFolderDirectory) if listing[0] != "." and listing != "listed"]
 
-# Don't include the posted folder in our listings folder
-folders.pop(folders.index("posted"))
-
-print folders
-                          
-for folder in folders:
-
-    # The absolue path to the folder we are using
-    folder = os.path.abspath(os.path.join(posts_dir, folder))
-
-    print folder
-    
-    # Gets all the files in the folder
-    onlyfiles = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder,f)) and f[0] != '.' ]
-
-    print onlyfiles
-    # Deletes the text file from our image array
-    onlyfiles.pop(onlyfiles.index("info.txt"))
-
-    # Basically I want to sort things with numbered prefixes and use them first
-    # Then use the other images
-    # I could use zip and such but I don't have the function handy that works well
-    sec_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] != "_") or (x[0].isdigit() == False) and x[0] != '.']
-    first_list = [os.path.abspath(os.path.join(folder, x)) for x in onlyfiles if (x[1] == "_") and (x[0].isdigit()) and x[0] != '.']
-
-    first_list.sort()
-    sec_list.sort()
-
-    allpics = []
-    for x in first_list:allpics.append(x)
-    for x in sec_list:allpics.append(x)
-
-    # Opens the info file
-    with open(os.path.abspath(os.path.join(folder, 'info.txt')), 'r') as info:
-
-        # Parses the info file
-        p = post(info.read())
-
-    print "Opening browser"
-    # Create a new instance of the Firefox driver
-    driver = webdriver.Chrome(chromedriver)
-
-    # Go to craigslist postpage
-    driver.get("https://post.craigslist.org/c/" + p.loc + "?lang=en")
-
-    print "Opened"
-    post_type(driver,p.types).click()
-    post_category(driver,p.cat).click()
-    print "Chose category"
-    try:
-        abide_by_guidelines(driver).click() # Don't always have to do this for some reason
-    except:
-        pass
-    create_post(driver,p)
-    
-    geo_location(driver,p)
-    add_images(driver,allpics)
-    print "Adding Images"
-    publish(driver)
-    print "Publishing Listing"
-    g = Gmail()
-    g.login(gmailUser,gmailPass)
-    
-    today = date.today()
-    year = today.year
-    month = today.month
-    day = today.day
+for listingFolder in listingFolders:
+    listingFolder = os.path.abspath(os.path.join(listingsFolderDirectory, listingFolder))
+    with open(os.path.abspath(os.path.join(listingFolder, 'info.txt')), 'r') as info:
+        listing = listingInfoParse(info.read())
+    listing.images = getOrderedListingImages(listingFolder)
+    listing.driver = webdriver.Chrome(chromedriver)
+    listing.driver.get("https://post.craigslist.org/c/" + listing.loc + "?lang=en")
+    postListing(listing)
+    acceptEmailTerms(listing)
+    moveFolder(listingFolder,listedFolderDirectory)
+    listing.driver.close()
     time.sleep(120)
-    print "Checking email"
-    emails = g.inbox().mail(sender="robot@craigslist.org",unread=True,after=datetime.date(year, month, day-1))
-    for email in emails:
-        email.fetch()
-        email.read()
-        if p.title[0:15] in email.subject:
-            eMessage = email.body
-            msg = eMessage.split("https")
-            msg = msg[1].split("\r\n")
-            msg = msg[0]
-            driver.get("https" + msg)
-            accept_terms(driver)
-            moveFolder(folder,posted_dir)
-            email.archive()
-            break
-    g.logout()
-    print "Done Checking Emails"
-    driver.close()
-    time.sleep(120)
+    print "Waiting 2 minutes"
+print "No More Craiglist Items To List"
     
-
-#------------------ Dealing with posts that need to be posted ------------------

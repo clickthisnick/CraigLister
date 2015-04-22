@@ -1,0 +1,14 @@
+
+<Location>ame<Location>
+<Title>Kill-A-Watt Meter<Title>
+<Type>for sale by owner<Type>
+<Category>electronics - by owner<Category>
+<Email>youremail@gmail.com<Email>
+<Street>My Street<Street>
+<City>Ames<City>
+<CrossStreet><CrossStreet>
+<State>IA<State>
+<Postal>50010<Postal>
+<Body>This listing is for a Kill-A-Watt meter. I used this around the house to determine the electricity things were using so I could better manage my electrify bills. I am asking for $12, I can be contacted via text message to 1-800-867-5309 or contacted via email.<Body>
+<Price>12<Price>
+

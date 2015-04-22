@@ -31,8 +31,8 @@ Usage
 | 1 | Download the chromedriver and put into this directory |
 | 2 | Install and import the gmail library or download files from gmail link and put in this directory |
 | 3 | Change the gmail username/pass in the craiglister.py file
-| 4 | In the listings folder create a new folder that describes the item to post and include pictures and a info.txt file |
-| 5 | Look at the Example - Laptop folder for an idea of what the folder will be like, you can also add pictures in this folder |
+| 4 | In the listings folder create a new folder that describes the item to post and include pictures and an info.txt file (There is already a "Laptop" folder as an example)|
+| 5 | Delete the Laptop Example in the listings folder and delete the 04-16-15 folder in the listed folder |
 | 6 | Run craigslister.py and it will post every listing in the listings folder |
 
 This script works by parsing the info.txt file, filling out the craigslist post with that information, uploading the pictures and then submitting the post. Craigslist will then email you an approval link, the gmail library will parse that link and selenium will direct you to that link and click accept. Then the folder you created for that post will get moved to a posted folder within a date folder. Then when it has been 72 hours or greater the posts within that date folder will be moved back to the posts pool and will get posted again.

@@ -28,18 +28,11 @@ Usage
 
 | Steps | Action |
 --------|--------|
-| 1 | Make a new directory and put craigslister.py in it |
-| 2 | Download the chromedriver and put into the craigslister directory |
-| 3 | Install and import the gmail library or download files from gmail link and put in craiglister directory |
-| 4 | Change the gmail username/pass in the craiglister.py file
-| 5 | Run the craigslister.py file, it will create a readme, exampleinfo file, and a posts directory |
-| 6 | In the posts folder create a new folder that describes the item to post |
-| 7 | For example make a folder Guitar |
-| 8 | Then copy exampleinfo.txt into the Guitar folder and rename info.txt |
-| 9 | Fill out the info.txt with the correct craigslist information |
-| 10 | Put any pictures you want in the listing in the Guitar folder |
-| 11 | You can change the order of the images by naming appending _1 _2 _3 etc. |
-| 12 | Run craigslister.py and it will post your Guitar listing |
+| 1 | Download the chromedriver and put into this directory |
+| 2 | Install and import the gmail library or download files from gmail link and put in this directory |
+| 3 | Change the gmail username/pass in the craiglister.py file
+| 4 | In the listings folder create a new folder that describes the item to post and include pictures and a info.txt file |
+| 5 | Look at the Example - Laptop folder for an idea of what the folder will be like, you can also add pictures in this folder |
+| 6 | Run craigslister.py and it will post every listing in the listings folder |
 
 This script works by parsing the info.txt file, filling out the craigslist post with that information, uploading the pictures and then submitting the post. Craigslist will then email you an approval link, the gmail library will parse that link and selenium will direct you to that link and click accept. Then the folder you created for that post will get moved to a posted folder within a date folder. Then when it has been 72 hours or greater the posts within that date folder will be moved back to the posts pool and will get posted again.
-

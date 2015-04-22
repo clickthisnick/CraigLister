@@ -1,0 +1,12 @@
+<Location>ame<Location>
+<Title>Great New Computer<Title>
+<Type>for sale by owner<Type>
+<Category>electronics - by owner<Category>
+<Email>youremail@gmail.com<Email>
+<Street>212 My Street<Street>
+<City>Ames<City>
+<CrossStreet><CrossStreet>
+<State>IA<State>
+<Postal>50010<Postal>
+<Body>This listing is for a brand new laptop computer. It has a 2 terabyte SSD and 32gb ram.  I am asking for $249.99, I can be contacted via text message to 1-800-867-5309 or contacted via email.<Body>
+<Price>249.99<Price>

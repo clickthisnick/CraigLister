@@ -1,0 +1,57 @@
+// Categories
+	// Types
+
+//job offered
+//gig offered (I'm hiring for a short-term, small or odd job)
+//resume / job wanted
+//housing offered
+//housing wanted
+//for sale by owner
+	//antiques - by owner
+	//appliances - by owner
+	//arts & crafts - by owner
+	//atvs, utvs, snowmobiles - by owner
+	//auto parts - by owner
+	//baby & kid stuff - by owner (no illegal sales of recall items, e.g. drop-side cribs)
+	//barter
+	//bicycle parts & accessories - by owner
+	//bicycles - by owner
+	//boats - by owner
+	//books & magazines - by owner
+	//business/commercial - by owner
+	//cars & trucks - by owner
+	//cds / dvds / vhs - by owner (no pornography please)
+	//cell phones - by owner
+	//clothing & accessories - by owner
+	//collectibles - by owner
+	//computer parts & accessories - by owner
+	//computers - by owner
+	//electronics - by owner
+	//farm & garden - by owner (legal sales of agricultural livestock OK)
+	//free stuff (no "wanted" ads, pets, promotional giveaways, or intangible/digital items please)
+	//furniture - by owner
+	//garage & moving sales (no online or virtual sales here please)
+	//general for sale - by owner
+	//health and beauty - by owner
+	//heavy equipment - by owner
+	//household items - by owner
+	//jewelry - by owner
+	//materials - by owner
+	//motorcycle parts & accessories - by owner
+	//motorcycles/scooters - by owner
+	//musical instruments - by owner
+	//photo/video - by owner
+	//rvs - by owner
+	//sporting goods - by owner (no firearms, ammunition, pellet/BB guns, stun guns, etc)
+	//tickets - by owner (please do not sell tickets for more than face value)
+	//tools - by owner
+	//toys & games - by owner
+	//video gaming - by owner
+	//wanted - by owner
+//for sale by dealer
+//wanted by owner
+//wanted by dealer
+//service offered
+//personal / romance
+//community
+//event / class

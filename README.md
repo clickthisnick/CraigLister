@@ -21,7 +21,7 @@ http://chromedriver.storage.googleapis.com/index.html
 Pillow
 
 Python imaging library. To install use "pip install Pillow".
-If you have an error you may need to "pip uninstall PIL" and reistall Pillow as well.
+If you have an error you may need to "pip uninstall PIL" and reinstall Pillow as well.
 
 Usage
 -----
